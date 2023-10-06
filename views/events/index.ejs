@@ -1,0 +1,40 @@
+<% layout('layouts/boilerplate') %>
+
+    <div class="d-flex flex-column align-items-start my-5 mx-3">
+        <h1 class="mb-3">Your Attended Events :::</h1>
+        <a class="btn btn-success col-4 col-md-2 col-xxl-1 ms-1" href="/events/new">New Event</a>
+    </div>
+
+    <div class="row justify-content-center mx-3 my-2">
+
+        <% for( let event of attendedEvents) { %>
+
+            <div class="card my-3 mx-3 col-12 col-md-5 col-xl-3 col-xxl-2 justify-content-center" style="height: 250px;">
+                <h2 class="ms-3"><%- event.name %></h2>
+                <p class="ms-3"><%- event.displayDate %> (<%- event.admin.displayName %>)</p>
+
+                <a href="/events/<%- event._id %>" class="btn btn-secondary w-50 align-self-center">Details</a>
+            </div>
+        
+        <% } %>
+
+    </div>
+
+    <div class="d-flex my-5 mx-3 justify-content-start">
+        <H1 class="mb-3">Your pending events</H1>
+    </div>
+
+    <div class="row justify-content-center mx-2 my-2">
+
+        <% for( let event of pendingEvents) { %>
+
+            <div class="card my-3 mx-3 col-12 col-md-5 col-xl-3 col-xxl-2 justify-content-center" style="height: 250px;">
+                <h2 class="ms-3"><%- event.name %></h2>
+                <p class="ms-3"><%- event.displayDate %> (<%- event.admin.displayName %>)</p>
+
+                <a href="/events/<%- event._id %>" class="btn btn-secondary w-50 align-self-center">Details</a>
+            </div>
+        
+        <% } %>
+
+    </div>

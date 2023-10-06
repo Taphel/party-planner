@@ -1,0 +1,28 @@
+<% layout('layouts/boilerplate') %>
+
+<form action="/events" method="POST" class="col-8 col-lg-3 mx-auto mt-5">
+
+    <h1 class="text-center mb-5">New Event</h1>
+
+    <div class="d-flex flex-column align-items-center mb-3">
+        <label class="form-label" for="name">Event name :</label>
+        <input class="form-control" type="text" name="name" minlength="8" maxlength="30">
+    </div>
+
+    <div class="d-flex flex-column align-items-center mb-4">
+        <label class="form-label" for="date">Date :</label>
+        <input class="form-control" type="date" name="date">
+    </div>
+
+    <div class="d-flex flex-column align-items-center col-4 col-sm-3 col-lg-4 mx-auto mb-4">
+        <label class="form-label" for="time">Time :</label>
+        <input class="form-control text-center" type="time" name="time">
+    </div>
+
+    <input type="hidden" name="admin" value="<%- session.userId %>">
+
+    <div class="d-flex justify-content-center mx-auto mb-3 col-7">
+        <button class="btn btn-outline-success col-12">Create Event</button>
+    </div>
+
+</form>

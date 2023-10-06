@@ -1,0 +1,53 @@
+<% layout('layouts/boilerplate') %>
+
+<form action="/register" method="POST" class="col-8 col-lg-3 mx-auto mt-5">
+
+    <h1 class="text-center mb-5">Register</h1>
+
+    <% if (formData.errorMessages.length > 0) { %>
+        <div class="mb-3"> 
+            <h3>Error :</h3>
+            <ul>
+                <% for( let e of formData.errorMessages) { %>      
+                    <li><%- e %></li>
+                <% } %>      
+            </ul>   
+        </div>  
+    <% } %>        
+    
+    <div class="d-flex flex-column align-items-center mb-3">
+        <label class="form-label" for="userName">User name :</label>
+        <input class="form-control" type="text" name="userName" minlength="4" maxlength="15">
+    </div>
+
+    <div class="d-flex flex-column align-items-center mb-3">
+        <label class="form-label" for="password">Password :</label>
+        <input class="form-control" type="password" name="password" minlength="8" maxlength="30">
+    </div>
+
+    <div class="d-flex flex-column align-items-center mb-4">
+        <label class="form-label" for="confirmPassword">Confirm Password :</label>
+        <input class="form-control" type="password" name="confirmPassword" minlength="8" maxlength="30">
+    </div>
+
+    <div class="d-flex justify-content-center mx-auto mb-3 col-7">
+        <button class="btn btn-outline-success col-12">Submit</button>
+    </div>
+    
+
+    <!-- <label for="userName">User name :</label>
+    <span>@</span>
+    <input type="text" name="userName" minlength="4" maxlength="15" <% if (formData) { %> <%- `value="${formData.userName}"`%><% } %>>
+     
+    <br>
+
+    <label for="password">Password :</label>
+    <input type="password" name="password" minlength="8" maxlength="30">
+
+    <br>
+
+    <label for="confirmPassword">Confirm Password :</label>
+    <input type="password" name="confirmPassword" minlength="8" maxlength="30">
+    <button>Submit</button> -->
+
+</form>

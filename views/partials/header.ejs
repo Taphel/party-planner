@@ -1,0 +1,48 @@
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-lg bg-dark border-bottom border-start border-end border-light rounded-bottom" data-bs-theme="dark">
+        <div class="container-fluid align-items-end">
+            <a class="navbar-brand fs-2 col-lg-2 text-center" href="/home">PartyPlanner</a>
+            <button class="navbar-toggler align-self-center" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                <hr class="d-block d-lg-none text-light mt-3 mb-1">
+                <% if (session && session.userId && session.userName) { %>
+                    <ul class="navbar-nav col-lg-4 justify-content-evenly">
+                        <li class="nav-item col-6">
+                            <a class="nav-link mx-1 fs-5 col-12" aria-current="page" href="/events">My
+                                Events</a>
+                        <li class="nav-item col-6">
+                            <a class="nav-link mx-1 fs-5 col-12" aria-current="page" href="#">Profile</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav ms-lg-auto col-6 justify-content-end">
+                        <li class="nav-item col-lg-6 d-flex align-items-center justify-content-lg-end">
+                            <a class="nav-link mx-1 active fst-italic" aria-current="page" href="#">Logged in as <%-
+                                    session.userName %></a>
+                        </li>
+                        <li class="nav-item col-8 col-lg-4 me-2">
+                            <a class="nav-link mx-1" aria-current="page" href="/logout"><button
+                                    class="btn btn-outline-secondary w-100">Log Out</button></a>
+                        </li>
+                    </ul>
+
+                    <% } else { %>
+                        <ul class="navbar-nav ms-lg-auto col-6 justify-content-end">
+                            <li class="nav-item col-8 col-lg-4">
+                                <a class="nav-link mx-1" aria-current="page" href="/register"><button
+                                        class="btn btn-outline-primary w-100">Register</button></a>
+                            </li>
+                            <li class="nav-item col-8 col-lg-4 me-2">
+                                <a class="nav-link mx-1" aria-current="page" href="/login"><button
+                                        class="btn btn-outline-success w-100">Log In</button></a>
+                            </li>
+                        </ul>
+                        <% } %>
+            </div>
+        </div>
+    </nav>
+</header>
