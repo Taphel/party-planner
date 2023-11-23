@@ -256,6 +256,7 @@ app.patch('/events/:id', async(req, res) => {
 app.delete('/events/:id', async(req, res) => {
     const {id} = req.params;
     const event = await Event.findByIdAndDelete(id, req.body, {new: true})
+    // DELETE EVENT FROM USER EVENT LIST
     console.log('EVENT DELETED :');
     console.log(event);
     res.redirect(`/events`);
@@ -263,11 +264,40 @@ app.delete('/events/:id', async(req, res) => {
 
 app.get('/users', async (req, res) => {
     try {
-      const query = req.query.q; // Assuming the frontend sends the query as "q"
-      console.log(query);
+      const query = req.query.q;
+      const eventId = req.query.e;
+
       const users = await User.find({ userName: new RegExp(query, 'i') });
-      console.log(users);
-      res.json(users);
+      const event = await Event.findById(eventId).populate(['admin', 'attendedGuests', 'pendingGuests']);
+
+      let allGuests = [];
+      allGuests = [...event.attendedGuests, ...event.pendingGuests];
+      allGuests.push(event.admin);
+
+      for (let i = 0; i < allGuests.length; i++) {
+
+        console.log(allGuests[i]);
+
+
+    }
+
+      const filteredUsers = users.filter((user) => {
+
+        let sameUserNameCount = 0;
+
+        for (let guest of allGuests) {
+            
+            if (user.userName === guest.userName) sameUserNameCount++;
+
+        }
+
+        return sameUserNameCount === 0;
+
+      })
+
+      res.json(filteredUsers);
+
+      console.log("FILTERED USERS :", filteredUsers);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });

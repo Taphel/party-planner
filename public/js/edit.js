@@ -61,7 +61,7 @@ userSearchInput.addEventListener("input", async () => {
 
         if (userSearchInput.value != "") {
 
-            const response = await fetch(`/users?q=${userSearchInput.value}`);
+            const response = await fetch(`/users?q=${userSearchInput.value}&e=${getEventId()}`);
             const data = await response.json();
 
             // Display new data
