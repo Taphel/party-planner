@@ -193,7 +193,7 @@ app.post('/events', parseId, async (req, res) => {
         eventAdmin.attendedEvents.push(newEvent);
         await eventAdmin.save();
 
-        // Redirect to events index
+        // Redirect to event page
         res.redirect(`/events/${newEvent._id}`);
     } catch (e) {
         console.log(e);
@@ -209,6 +209,69 @@ app.get('/events/:id', checkSession, async (req, res) => {
     console.log(event);
     res.render('events/show', {event, session});
 })
+
+// WORK IN PROGRESS
+
+app.patch('/events/:id/attend', checkSession, async (req, res) => {
+    const session = req.session;
+    const { id } = req.params;
+
+    try {
+
+        const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'pendingGuests']);
+        const user = await User.findById(session.userId).populate((['attendedEvents', 'pendingEvents']));
+
+
+        // delete the user from event's pending guest and add it to attended guests
+        event.pendingGuests.splice(event.pendingGuests.indexOf(user), 1);
+        event.attendedGuests.push(user);
+
+        // Update Event
+        await User.findByIdAndUpdate(user._id, user, {new: true, runValidators: true});
+
+        // delete the event from user's pending events and add it to attended events;
+        user.pendingEvents.splice(user.pendingEvents.indexOf(event), 1);
+        user.attendedEvents.push(event);
+
+        // Update User
+        await User.findByIdAndUpdate(user._id, user, {new: true, runValidators: true});
+
+        // Redirect to event page
+        res.redirect(`/events/${event._id}`);
+
+    } catch (e) {
+        console.log(e);
+        res.redirect('/events');
+    }
+        
+})
+
+app.patch('/events/:id/decline', checkSession, async (req, res) => {
+    const session = req.session;
+    const { id } = req.params;
+
+    try {
+
+        const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'pendingGuests']);
+        const user = await User.findById(session.userId).populate((['attendedEvents', 'pendingEvents']));
+
+        // delete the event from user's pending events
+        user.pendingEvents.splice(user.pendingEvents.indexOf(event), 1);
+
+        // Update User
+        await User.findByIdAndUpdate(user._id, user, {new: true, runValidators: true});
+
+        // Redirect to event index
+        res.redirect(`/events`);
+
+    } catch (e) {
+        console.log(e);
+        res.redirect('/events');
+    }
+        
+})
+
+// WORK IN PROGRESS
 
 app.get('/events/:id/edit', checkSession, async (req, res) => {
     const session = req.session;
@@ -273,13 +336,6 @@ app.get('/users', async (req, res) => {
       let allGuests = [];
       allGuests = [...event.attendedGuests, ...event.pendingGuests];
       allGuests.push(event.admin);
-
-      for (let i = 0; i < allGuests.length; i++) {
-
-        console.log(allGuests[i]);
-
-
-    }
 
       const filteredUsers = users.filter((user) => {
 

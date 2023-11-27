@@ -31,8 +31,18 @@
             <div class="card my-3 mx-3 col-12 col-md-5 col-xl-3 col-xxl-2 justify-content-center" style="height: 250px;">
                 <h2 class="ms-3"><%- event.name %></h2>
                 <p class="ms-3"><%- event.displayDate %> (<%- event.admin.displayName %>)</p>
+                
+                <div class="d-flex flex-row">
+                    <form class="d-flex justify-content-center col-6"method="POST" action="/events/<%- event._id %>/attend?_method=PATCH">
+                        <button class="btn btn-success align-self-center mx-2 col-10">Attend</button>
+                    </form>
 
-                <a href="/events/<%- event._id %>" class="btn btn-secondary w-50 align-self-center">Details</a>
+                    <form class="d-flex justify-content-center col-6" method="POST" action="/events/<%- event._id %>/decline?_method=PATCH">
+                        <button class="btn btn-danger align-self-center mx-2 col-10">Decline</button>
+                    </form>
+                    
+                </div>
+                
             </div>
         
         <% } %>
