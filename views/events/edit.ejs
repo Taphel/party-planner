@@ -1,4 +1,80 @@
 <% layout('layouts/boilerplate') %>
 
-<script src="/js/dynamicform.js">
-</script>
+    <form action="/events/<%-event._id%>?_method=PATCH" method="POST" class="col-8 col-lg-3 mx-auto mt-5">
+
+        <h1 class="text-center mb-5">Edit Items</h1>
+
+        <div class="foodsInput d-flex flex-column align-items-center mb-3">
+
+            <label class="form-label" for="foods[0]">Foods :</label>
+
+            <% if (foods.length > 0) { %>
+
+                <% for( let food of foods) { %>
+
+                    <input class="form-control" type="text" name="foods[<%-foods.indexOf(food)%>]" minlength="3"
+                        maxlength="30" value="<%-food%>">
+    
+                <% } %>
+             
+            <% } else { %> 
+
+                <input class="form-control" type="text" name="foods[0]" minlength="3"
+                        maxlength="30">
+
+            <% } %>
+            
+
+        </div>
+
+        <div class="drinksInput d-flex flex-column align-items-center mb-3">
+
+            <label class="form-label" for="drinks[0]">Drinks :</label>
+
+            <% if (drinks.length > 0) { %>
+
+                <% for( let drink of drinks) { %>
+
+                    <input class="form-control" type="text" name="drinks[<%-drinks.indexOf(drink)%>]" minlength="3"
+                        maxlength="30" value="<%-drink%>">
+    
+                <% } %>
+             
+            <% } else { %> 
+
+                <input class="form-control" type="text" name="drinks[0]" minlength="3"
+                        maxlength="30">
+
+            <% } %>
+
+        </div>
+
+        <div class="otherInput d-flex flex-column align-items-center mb-3">
+
+            <label class="form-label" for="other[0]">Other :</label>
+
+            <% if (other.length > 0) { %>
+
+                <% for( let item of other) { %>
+
+                    <input class="form-control" type="text" name="other[<%-other.indexOf(item)%>]" minlength="3"
+                        maxlength="30" value="<%-item%>">
+    
+                <% } %>
+             
+            <% } else { %> 
+
+                <input class="form-control" type="text" name="other[0]" minlength="3"
+                        maxlength="30">
+
+            <% } %>
+
+        </div>
+
+        <input type="hidden" name="user" value="<%- session.userId %>">
+
+        <div class="d-flex justify-content-center mx-auto mb-3 col-7">
+            <button class="btn btn-outline-success col-12">Save Items</button>
+        </div>
+
+    </form>

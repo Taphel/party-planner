@@ -183,15 +183,28 @@ app.post('/events', parseId, async (req, res) => {
     newEvent.date.setMinutes(minutes);
 
     try {
-        // Save the created event
+        // Add created event to admin's attended events
+        const eventAdmin = await User.findById(newEvent.admin);
+        eventAdmin.attendedEvents.push(newEvent);
+
+        // Add admin to attended guests
+        const adminGuest = {
+            user: eventAdmin,
+            foods: [],
+            drinks: [],
+            other: []
+        }
+
+        newEvent.attendedGuests.push(adminGuest);
+
+        // Save to database 
+
+        await eventAdmin.save();
         await newEvent.save();
         console.log('EVENT ADDED :');
         console.log(newEvent);
 
-        // Add created event to admin's attended events
-        const eventAdmin = await User.findById(newEvent.admin);
-        eventAdmin.attendedEvents.push(newEvent);
-        await eventAdmin.save();
+        
 
         // Redirect to event page
         res.redirect(`/events/${newEvent._id}`);
@@ -206,7 +219,6 @@ app.get('/events/:id', checkSession, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
     const event = await Event.findById(id).populate(['admin', 'attendedGuests.user', 'pendingGuests']);
-    console.log(event);
     res.render('events/show', {event, session});
 })
 
@@ -218,24 +230,38 @@ app.patch('/events/:id/attend', checkSession, async (req, res) => {
 
     try {
 
-        const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'pendingGuests']);
-        const user = await User.findById(session.userId).populate((['attendedEvents', 'pendingEvents']));
+        const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'attendedGuests.user', 'pendingGuests']);
+        const loggedUser = await User.findById(session.userId).populate((['attendedEvents', 'pendingEvents']));
+        console.log("LOGGED IN USER :", loggedUser);
 
+        // delete the user from event's pending guests and add it to attended guests
+        event.pendingGuests.splice(event.pendingGuests.indexOf(loggedUser), 1);
 
-        // delete the user from event's pending guest and add it to attended guests
-        event.pendingGuests.splice(event.pendingGuests.indexOf(user), 1);
-        event.attendedGuests.push(user);
+        const attendingGuest = {
+            user: loggedUser,
+            foods: [],
+            drinks: [],
+            other: []
+        }
+
+        event.attendedGuests.push(attendingGuest);
 
         // Update Event
-        await User.findByIdAndUpdate(user._id, user, {new: true, runValidators: true});
+        // await Event.findByIdAndUpdate(event._id, event, {new: true, runValidators: true});
+        await event.save();
+
 
         // delete the event from user's pending events and add it to attended events;
-        user.pendingEvents.splice(user.pendingEvents.indexOf(event), 1);
-        user.attendedEvents.push(event);
+        loggedUser.pendingEvents.splice(loggedUser.pendingEvents.indexOf(event), 1);
+        loggedUser.attendedEvents.push(event);
+
+        console.log("UPDATED PENDING EVENTS :", loggedUser.pendingEvents);
+        console.log("UPDATED ATTENDED EVENTS :", loggedUser.attendedEvents);
 
         // Update User
-        await User.findByIdAndUpdate(user._id, user, {new: true, runValidators: true});
-
+        // await User.findByIdAndUpdate(loggedUser._id, loggedUser, {new: true, runValidators: true});
+        await loggedUser.save();
+        console.log("USER UPDATED :", loggedUser);
         // Redirect to event page
         res.redirect(`/events/${event._id}`);
 
@@ -276,8 +302,35 @@ app.patch('/events/:id/decline', checkSession, async (req, res) => {
 app.get('/events/:id/edit', checkSession, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
-    const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'pendingGuests', 'foods.user', 'drinks.user', 'other.user']);
-    res.render('events/edit', {event, session});
+
+    // Retrieve event and user
+    const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'attendedGuests.user']);
+    let editGuest = null;
+
+    // Find logged in user
+    for (let guest of event.attendedGuests) {
+
+        if (guest.user.userName === session.userName) {
+            
+            editGuest = guest;
+
+        }
+
+    }
+
+    if (editGuest) {
+
+
+        const foods = editGuest.foods;
+        const drinks = editGuest.drinks;
+        const other = editGuest.other;
+
+        res.render('events/edit', {event, session, foods, drinks, other});
+    } else {
+        res.redirect('/events');
+    }
+
+    
 })
 
 app.patch('/events/:id/invite', async(req, res) => {
@@ -304,11 +357,27 @@ app.patch('/events/:id/invite', async(req, res) => {
 
 app.patch('/events/:id', async(req, res) => {
     const {id} = req.params;
+
     try {
-        const event = await Event.findByIdAndUpdate(id, req.body, {new: true, runValidators: true})
-        console.log('EVENT UPDATED :');
-        console.log(event);
+        const event = await Event.findById(id).populate('attendedGuests.user');
+        const user = await User.findById(req.body.user);
+
+
+        for (let guest of event.attendedGuests) {
+
+            if (guest.user.userName === user.userName) {
+
+                guest.foods = req.body.foods;
+                guest.drinks = req.body.drinks;
+                guest.other = req.body.other;
+
+            }
+        }
+
+        await event.save();
+        console.log("EVENT UPDATED :", event);
         res.redirect(`/events/${event._id}`);
+        
     } catch (e) {
         console.log(e);
         res.redirect(`/events`);
