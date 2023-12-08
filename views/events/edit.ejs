@@ -4,72 +4,123 @@
 
         <h1 class="text-center mb-5">Edit Items</h1>
 
-        <div class="foodsInput d-flex flex-column align-items-center mb-3">
+        <div class="d-flex flex-column justify-content-between">
 
-            <label class="form-label" for="foods[0]">Foods :</label>
+            <div id="foodsInput" class="d-flex flex-column align-items-center mb-3">
 
-            <% if (foods.length > 0) { %>
-
-                <% for( let food of foods) { %>
-
-                    <input class="form-control" type="text" name="foods[<%-foods.indexOf(food)%>]" minlength="3"
-                        maxlength="30" value="<%-food%>">
+                <label class="form-label" for="foods[0]">Foods :</label>
+    
+                <% if (foods.length > 0) { %>
+    
+                    <% for( let food of foods) { %>
+    
+                        <input class="foodField form-control" type="text" name="foods[<%-foods.indexOf(food)%>]" minlength="3"
+                            maxlength="30" value="<%-food%>">
+        
+                    <% } %>
+                 
+                <% } else { %> 
+    
+                    <input class="foodField form-control" type="text" name="foods[0]" minlength="3"
+                            maxlength="30">
     
                 <% } %>
-             
-            <% } else { %> 
+                
+    
+            </div>
 
-                <input class="form-control" type="text" name="foods[0]" minlength="3"
-                        maxlength="30">
+            <div class="d-flex align-self-center justify-content-center col-12 mx-2 mb-3">
 
-            <% } %>
-            
+                <button type="button" id="foodPlusButton" class="btn btn-success col-3 mx-2">
+                    +
+                </button>
+
+                <button type="button" id="foodMinusButton" class="btn btn-danger col-3 mx-2">
+                    -
+                </button>
+
+            </div>
+
 
         </div>
 
-        <div class="drinksInput d-flex flex-column align-items-center mb-3">
+        <div class="d-flex flex-column justify-content-between">
 
-            <label class="form-label" for="drinks[0]">Drinks :</label>
+            <div id="drinksInput" class="d-flex flex-column align-items-center mb-3">
 
-            <% if (drinks.length > 0) { %>
-
-                <% for( let drink of drinks) { %>
-
-                    <input class="form-control" type="text" name="drinks[<%-drinks.indexOf(drink)%>]" minlength="3"
-                        maxlength="30" value="<%-drink%>">
+                <label class="form-label" for="drinks[0]">Drinks :</label>
+    
+                <% if (drinks.length > 0) { %>
+    
+                    <% for( let drink of drinks) { %>
+    
+                        <input class="drinkField form-control" type="text" name="drinks[<%-drinks.indexOf(drink)%>]" minlength="3"
+                            maxlength="30" value="<%-drink%>">
+        
+                    <% } %>
+                 
+                <% } else { %> 
+    
+                    <input class="drinkField form-control" type="text" name="drinks[0]" minlength="3"
+                            maxlength="30">
     
                 <% } %>
-             
-            <% } else { %> 
+    
+            </div>
 
-                <input class="form-control" type="text" name="drinks[0]" minlength="3"
-                        maxlength="30">
+            <div class="d-flex align-self-center justify-content-center col-12 mx-2 mb-3">
 
-            <% } %>
+                <button type="button" id="drinkPlusButton" class="btn btn-success col-3 mx-2">
+                    +
+                </button>
+
+                <button type="button" id="drinkMinusButton" class="btn btn-danger col-3 mx-2">
+                    -
+                </button>
+
+            </div>
+
 
         </div>
 
-        <div class="otherInput d-flex flex-column align-items-center mb-3">
+        <div class="d-flex flex-column justify-content-between">
 
-            <label class="form-label" for="other[0]">Other :</label>
+            <div id="otherInput" class="d-flex flex-column align-items-center mb-3">
 
-            <% if (other.length > 0) { %>
-
-                <% for( let item of other) { %>
-
-                    <input class="form-control" type="text" name="other[<%-other.indexOf(item)%>]" minlength="3"
-                        maxlength="30" value="<%-item%>">
+                <label class="form-label" for="other[0]">Other :</label>
+    
+                <% if (other.length > 0) { %>
+    
+                    <% for( let item of other) { %>
+    
+                        <input class="otherField form-control" type="text" name="other[<%-other.indexOf(item)%>]" minlength="3"
+                            maxlength="30" value="<%-item%>">
+        
+                    <% } %>
+                 
+                <% } else { %> 
+    
+                    <input class="otherField form-control" type="text" name="other[0]" minlength="3"
+                            maxlength="30">
     
                 <% } %>
-             
-            <% } else { %> 
+    
+            </div>
 
-                <input class="form-control" type="text" name="other[0]" minlength="3"
-                        maxlength="30">
+            <div class="d-flex align-self-center justify-content-center col-12 mx-2 mb-3">
 
-            <% } %>
+                <button type="button" id="otherPlusButton" class="btn btn-success col-3 mx-2">
+                    +
+                </button>
 
-        </div>
+                <button type="button" id="otherMinusButton" class="btn btn-danger col-3 mx-2">
+                    -
+                </button>
+
+            </div>
+
+
+        </div>       
 
         <input type="hidden" name="user" value="<%- session.userId %>">
 
@@ -78,3 +129,6 @@
         </div>
 
     </form>
+
+    <script src="/js/dynamicForm.js">
+    </script>

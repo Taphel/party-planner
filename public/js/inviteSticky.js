@@ -1,6 +1,4 @@
 const inviteButtons = document.querySelectorAll(".inviteButton");
-const addressButton = document.querySelectorAll(".addressButton");
-const itemsButton = document.querySelectorAll(".itemsButton");
 
 const overlay = document.querySelector("#overlay");
 const inviteSticky = document.querySelector("#inviteSticky");
