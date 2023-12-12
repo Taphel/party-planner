@@ -299,7 +299,7 @@ app.patch('/events/:id/decline', checkSession, async (req, res) => {
 
 // WORK IN PROGRESS
 
-app.get('/events/:id/edit', checkSession, async (req, res) => {
+app.get('/events/:id/items', checkSession, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
 
@@ -325,7 +325,29 @@ app.get('/events/:id/edit', checkSession, async (req, res) => {
         const drinks = editGuest.drinks;
         const other = editGuest.other;
 
-        res.render('events/edit', {event, session, foods, drinks, other});
+        res.render('events/editItems', {event, session, foods, drinks, other});
+    } else {
+        res.redirect('/events');
+    }
+
+    
+})
+
+app.get('/events/:id/address', checkSession, async (req, res) => {
+    const session = req.session;
+    const { id } = req.params;
+
+    // Retrieve event and user
+    const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'attendedGuests.user']);
+    let editGuest = null;
+
+    if (session.userName === event.admin.userName) {
+
+
+        const address = event.address;
+        const accessDetails = event.accessDetails;
+
+        res.render('events/editAddress', {event, session, address, accessDetails});
     } else {
         res.redirect('/events');
     }
@@ -355,14 +377,36 @@ app.patch('/events/:id/invite', async(req, res) => {
     
 })
 
-app.patch('/events/:id', async(req, res) => {
+app.patch('/events/:id/items', async(req, res) => {
     const {id} = req.params;
 
     try {
         const event = await Event.findById(id).populate('attendedGuests.user');
         const user = await User.findById(req.body.user);
 
+        // Clean up empty array indexes
+        for (let food of req.body.foods) {
 
+            if (food === "") {
+                req.body.foods.splice(req.body.foods.indexOf(food), 1);
+            }
+        }
+
+        for (let drink of req.body.drinks) {
+
+            if (drink === "") {
+                req.body.drinks.splice(req.body.drinks.indexOf(drink), 1);
+            }
+        }
+
+        for (let other of req.body.other) {
+
+            if (other === "") {
+                req.body.other.splice(req.body.other.indexOf(other), 1);
+            }
+        }
+
+        // Edit event guest item list
         for (let guest of event.attendedGuests) {
 
             if (guest.user.userName === user.userName) {
@@ -373,6 +417,25 @@ app.patch('/events/:id', async(req, res) => {
 
             }
         }
+
+        await event.save();
+        console.log("EVENT UPDATED :", event);
+        res.redirect(`/events/${event._id}`);
+        
+    } catch (e) {
+        console.log(e);
+        res.redirect(`/events`);
+    }
+    
+})
+
+app.patch('/events/:id/address', async(req, res) => {
+    const {id} = req.params;
+
+    try {
+        const event = await Event.findById(id).populate('attendedGuests.user');
+        event.address = req.body.address;
+        event.accessDetails = req.body.accessDetails;
 
         await event.save();
         console.log("EVENT UPDATED :", event);

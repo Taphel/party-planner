@@ -1,0 +1,28 @@
+<% layout('layouts/boilerplate') %>
+
+    <form action="/events/<%-event._id%>/address?_method=PATCH" method="POST" class="col-8 col-lg-3 mx-auto mt-5">
+
+        <h1 class="text-center mb-5">Edit Address</h1>
+
+        <div class="d-flex flex-column justify-content-between">
+
+            <div class="d-flex flex-column align-items-center mb-3">
+
+                <label class="form-label" for="address">Address :</label>
+                <input class="foodField form-control" type="text" name="address" minlength="0"
+                            maxlength="30" value="<%-address%>">
+            </div>
+
+            <div class="d-flex flex-column align-items-center mb-3">
+                <label class="form-label" for="accessDetails">Access Details :</label>
+                <textarea class="foodField form-control" type="text" name="accessDetails" minlength="0"
+                            maxlength="300"><%-accessDetails%></textarea>
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-center mx-auto mb-3 col-7">
+            <button class="btn btn-outline-success col-12">Save Address</button>
+        </div>
+
+    </form>
