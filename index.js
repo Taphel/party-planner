@@ -284,8 +284,13 @@ app.patch('/events/:id/decline', checkSession, async (req, res) => {
         // delete the event from user's pending events
         user.pendingEvents.splice(user.pendingEvents.indexOf(event), 1);
 
-        // Update User
-        await User.findByIdAndUpdate(user._id, user, {new: true, runValidators: true});
+        // delete the user from the event pending guests
+        event.pendingGuests.splice(event.pendingGuests.indexOf(user), 1);
+
+        // Save User & event
+        await user.save();
+        await event.save();
+
 
         // Redirect to event index
         res.redirect(`/events`);
@@ -297,7 +302,41 @@ app.patch('/events/:id/decline', checkSession, async (req, res) => {
         
 })
 
-// WORK IN PROGRESS
+app.patch('/events/:id/leave', checkSession, async (req, res) => {
+    const session = req.session;
+    const { id } = req.params;
+
+    try {
+
+        const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'pendingGuests']);
+        const user = await User.findById(session.userId).populate((['attendedEvents', 'pendingEvents']));
+
+        // delete the event from user's attended events
+        user.attendedEvents.splice(user.attendedEvents.indexOf(event), 1);
+
+        // delete the user from the event attended guests
+        for (let guest of event.attendedGuests) {
+
+            if (guest.user.userName === session.userName) {
+                event.attendedGuests.splice(event.attendedGuests.indexOf(guest), 1);
+            }
+        }
+        
+        // Save User & event
+        await user.save();
+        await event.save();
+
+
+        // Redirect to event index
+        res.redirect(`/events`);
+
+    } catch (e) {
+        console.log(e);
+        res.redirect('/events');
+    }
+        
+})
+
 
 app.get('/events/:id/items', checkSession, async (req, res) => {
     const session = req.session;
@@ -433,7 +472,7 @@ app.patch('/events/:id/address', async(req, res) => {
     const {id} = req.params;
 
     try {
-        const event = await Event.findById(id).populate('attendedGuests.user');
+        const event = await Event.findById(id)
         event.address = req.body.address;
         event.accessDetails = req.body.accessDetails;
 
@@ -450,11 +489,56 @@ app.patch('/events/:id/address', async(req, res) => {
 
 app.delete('/events/:id', async(req, res) => {
     const {id} = req.params;
-    const event = await Event.findByIdAndDelete(id, req.body, {new: true})
-    // DELETE EVENT FROM USER EVENT LIST
+
+    try {
+
+    const event = await Event.findById(id)
+    .populate({
+        path: 'attendedGuests.user',
+        select: 'attendedEvents'
+    })
+    .populate({
+        path: 'pendingGuests',
+        select: 'pendingEvents'
+    });
+    console.log("DELETING EVENT : ", event);
+
+    // DELETE EVENT FROM USERS EVENT LIST
+    for (let attendedGuest of event.attendedGuests) {
+        for (let attendedEvent of attendedGuest.user.attendedEvents) {
+            if (id === attendedEvent._id) {
+                attendedGuest.user.attendedEvents.splice(attendedGuest.user.attendedEvents.indexOf(attendedEvent), 1);
+                console.log(`Event ${id} removed from ${attendedGuest.user.userName} attended events.`)
+            }
+        }
+    }
+
+    for (let pendingGuest of event.pendingGuests) {
+        for (let pendingEvent of pendingGuest.pendingEvents) {
+            if (id === pendingEvent._id) {
+                pendingGuest.user.pendingEvents.splice(pendingGuest.user.pendingEvents.indexOf(pendingEvent), 1);
+                console.log(`Event ${id} removed from ${pendingGuest.user.userName} pending events.`)
+            }
+        }
+    }
+
+    event.deleteOne();
+    
+
     console.log('EVENT DELETED :');
     console.log(event);
     res.redirect(`/events`);
+
+
+    } catch (e) {
+
+        console.log("ERROR DELETING EVENT :", e);
+        res.redirect(`/events`);
+
+    }
+
+
+    
 })
 
 app.get('/users', async (req, res) => {
