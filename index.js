@@ -7,6 +7,7 @@ const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const generateSessionSecret = () => {
   return crypto.randomBytes(32).toString('hex');
@@ -26,15 +27,29 @@ async function main() {
     console.log("MONGO CONNECTION OPEN !");
 }
 
+// Password hashing
+
+const passwordHash = async (password, saltRounds) => {
+    try {
+      const salt = await bcrypt.genSalt(saltRounds);
+      return await bcrypt.hash(password, salt);
+    } catch (err) {
+      console.log(err);
+    }
+    return null;
+  };
+
 // Middleware
 app.use(
     session({
       secret: generateSessionSecret(),
       resave: false,
       saveUninitialized: false,
+      cookie : {
+        maxAge: 1000 * 60 * 60 * 24 * 7
+      }
     })
   );
-  
 
 app.use(express.static('public'));
 app.set('views', [path.join(__dirname, 'views'), path.join(__dirname, 'views/includes')]);
@@ -136,7 +151,10 @@ app.get('/login', async (req, res) => {
 app.post('/login', async (req, res) => {
     const {userName, password} = req.body;
     const user = await User.findOne({userName: userName});
-    if (user && user.password === password) {
+
+    const matchFound = await bcrypt.compare(password, user.password);
+
+    if (user && matchFound) {
         req.session.userId = user._id;
         req.session.userName = user.userName;
         res.redirect('/events');
@@ -157,13 +175,25 @@ app.get('/register', async (req, res) => {
 app.post('/register', async (req, res) => {
     const {userName, password, confirmPassword} = req.body;
     const errorMessages = [];
+
+    // Hash the request password
+    const hashedPassword = await passwordHash(password, 10);
     const takenUserName = await User.findOne({userName: userName});
+    
+
     if (takenUserName) {
         errorMessages.push("This user name is already taken.")
     }
     if (password !== confirmPassword) {
         errorMessages.push("Passwords do not match.")
     }
+    if(password.length > 30 || password.length < 8) {
+        errorMessages.push("Password must be between 8 and 30 characters.")
+    }
+    if(userName.length > 15|| userName.length < 4) {
+        errorMessages.push("Username must be between 4 and 15 characters.")
+    }
+    
     console.log(errorMessages);
 
     const formData = {
@@ -178,7 +208,7 @@ app.post('/register', async (req, res) => {
         const newUser = new User({
             displayName: userName.toLowerCase(),
             userName: userName,
-            password: password
+            password: hashedPassword
         })
 
         try {
