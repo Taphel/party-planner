@@ -424,26 +424,28 @@ app.patch('/events/:id/items', async(req, res) => {
         const user = await User.findById(req.body.user);
 
         // Clean up empty array indexes
-        for (let food of req.body.foods) {
+        for (let i = req.body.foods.length - 1; i >= 0; i--) {
 
-            if (food === "") {
-                req.body.foods.splice(req.body.foods.indexOf(food), 1);
+            if (!req.body.foods[i]) {
+                req.body.foods.splice(i, 1);
             }
         }
 
-        for (let drink of req.body.drinks) {
+        for (let i = req.body.drinks.length - 1; i >= 0; i--) {
 
-            if (drink === "") {
-                req.body.drinks.splice(req.body.drinks.indexOf(drink), 1);
+            if (!req.body.drinks[i]) {
+                req.body.drinks.splice(i, 1);
             }
         }
 
-        for (let other of req.body.other) {
+        for (let i = req.body.other.length - 1; i >= 0; i--) {
 
-            if (other === "") {
-                req.body.other.splice(req.body.other.indexOf(other), 1);
+            if (!req.body.other[i]) {
+                req.body.other.splice(i, 1);
             }
         }
+
+        
 
         // Edit event guest item list
         for (let guest of event.attendedGuests) {
