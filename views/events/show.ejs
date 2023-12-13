@@ -1,21 +1,22 @@
 <% layout('layouts/boilerplate') %>
 
-<div id="overlay" style="z-index: 9998; background-color: rgba(0, 0, 0, 0.5);"
-    class="d-none position-fixed top-0 start-0 w-100 h-100">
-    
-</div>
+    <div id="overlay" style="z-index: 9998; background-color: rgba(0, 0, 0, 0.5);"
+        class="d-none position-fixed top-0 start-0 w-100 h-100">
 
-<div id="inviteSticky" style="z-index: 9999; height: 80%;"
+    </div>
+
+    <div id="inviteSticky" style="z-index: 9999; height: 80%;"
         class="d-none d-flex flex-column justify-content-end position-absolute top-50 start-50 translate-middle border rounded bg-light px-3 col-11 col-lg-6">
         <div class="input-group mt-3 mb-4">
             <div class="input-group-prepend">
                 <span class="input-group-text fs-3">@</span>
             </div>
-            <input id="userSearchInput" class="form-control fs-3" type="text" name="userName" placeholder="Search user..." minlength="4"
-                maxlength="15">
+            <input id="userSearchInput" class="form-control fs-3" type="text" name="userName"
+                placeholder="Search user..." minlength="4" maxlength="15">
         </div>
-        <div id="userSearchData" class="overflow-auto h-100 border rounded mb-3" style="scrollbar-color: #6C757D #F8F9FA; scrollbar-width: thin;">
-            
+        <div id="userSearchData" class="overflow-auto h-100 border rounded mb-3"
+            style="scrollbar-color: #6C757D #F8F9FA; scrollbar-width: thin;">
+
         </div>
     </div>
 
@@ -30,17 +31,20 @@
         <div class="col-4 d-flex flex-column align-items-center px-3">
             <% if (session.userName===event.admin.userName) { %>
                 <button class="inviteButton btn btn-outline-primary col-6 my-1">Invite Guests</button>
-                <a class="addressButton btn btn-outline-secondary col-6 my-1" href="/events/<%- event._id %>/address">Edit Address</button>
-                <a class="itemsButton btn btn-outline-warning col-6 my-1" href="/events/<%- event._id %>/items">Edit Items</a>
-                <form action="/events/<%- event._id %>?_method=DELETE" method="POST" class="col-6 my-1">
-                    <button class="btn btn-outline-danger col-12">Delete Event</button>
-                </form>
-                <% } else { %>
-                    <a class="itemsButton btn btn-outline-warning col-6 my-1" href="/events/<%- event._id %>/items">Edit Items</a>
-                    <form action="/events/<%- event._id %>/leave?_method=PATCH" method="POST" class="col-6 my-1">
-                        <button class="btn btn-outline-danger col-12">Leave Event</button>
+                <a class="addressButton btn btn-outline-secondary col-6 my-1"
+                    href="/events/<%- event._id %>/address">Edit Address</button>
+                    <a class="itemsButton btn btn-outline-warning col-6 my-1" href="/events/<%- event._id %>/items">Edit
+                        Items</a>
+                    <form action="/events/<%- event._id %>?_method=DELETE" method="POST" class="col-6 my-1">
+                        <button class="btn btn-outline-danger col-12">Delete Event</button>
                     </form>
-                    <% } %>
+                    <% } else { %>
+                        <a class="itemsButton btn btn-outline-warning col-6 my-1"
+                            href="/events/<%- event._id %>/items">Edit Items</a>
+                        <form action="/events/<%- event._id %>/leave?_method=PATCH" method="POST" class="col-6 my-1">
+                            <button class="btn btn-outline-danger col-12">Leave Event</button>
+                        </form>
+                        <% } %>
         </div>
     </div>
 
@@ -51,9 +55,9 @@
                 <%= event.displayDate %>
                     </h1>
         </div>
-        <div class="col-10 my-3 d-flex justify-content-center mx-auto">
+        <div class="col-10 my-3 d-flex flex-wrap justify-content-center mx-auto">
             <% if (session.userName===event.admin.userName) { %>
-                <button class="inviteButton btn btn-outline-primary col-3 mx-2 py-2"><svg
+                <button class="inviteButton btn btn-outline-primary col-4 mx-2 my-2 py-2"><svg
                         xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
                         class="bi bi-person-add" viewBox="0 0 16 16">
                         <path
@@ -61,7 +65,8 @@
                         <path
                             d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Z" />
                     </svg></button>
-                <a class="addressButton btn btn-outline-secondary col-3 mx-2 py-2" href="/events/<%- event._id %>/address">
+                <a class="addressButton btn btn-outline-secondary col-4 mx-2 my-2 py-2"
+                    href="/events/<%- event._id %>/address">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
                         class="bi bi-pin-map" viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
@@ -70,14 +75,14 @@
                             d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999z" />
                     </svg>
                 </a>
-                <a class="itemsButton btn btn-outline-warning col-3 mx-2 py-2" href="/events/<%- event._id %>/items"><svg
-                        xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-bag"
-                        viewBox="0 0 16 16">
+                <a class="itemsButton btn btn-outline-warning col-4 mx-2 my-2 py-2"
+                    href="/events/<%- event._id %>/items"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                        fill="currentColor" class="bi bi-bag" viewBox="0 0 16 16">
                         <path
                             d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
                     </svg></a>
 
-                <form action="/events/<%- event._id %>?_method=DELETE" method="POST" class="col-3 mx-2">
+                <form action="/events/<%- event._id %>?_method=DELETE" method="POST" class="col-4 mx-2 my-2">
                     <button class="btn btn-outline-danger col-12 py-2"><svg xmlns="http://www.w3.org/2000/svg"
                             width="32" height="32" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                             <path
@@ -88,18 +93,20 @@
                 </form>
 
                 <% } else { %>
-                    <a class="itemsButton btn btn-outline-warning col-3 mx-2 py-2" href="/events/<%- event._id %>/items"><svg
-                        xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-bag"
-                        viewBox="0 0 16 16">
-                        <path
-                            d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
-                    </svg></a>
+                    <a class="itemsButton btn btn-outline-warning col-4 mx-2 py-2"
+                        href="/events/<%- event._id %>/items"><svg xmlns="http://www.w3.org/2000/svg" width="32"
+                            height="32" fill="currentColor" class="bi bi-bag" viewBox="0 0 16 16">
+                            <path
+                                d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
+                        </svg></a>
 
-                    <form action="/events/<%- event._id %>/leave?_method=PATCH" method="POST" class="col-3 mx-2">
-                        <button class="btn btn-outline-danger col-12 py-2"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-                          </svg></button>
+                    <form action="/events/<%- event._id %>/leave?_method=PATCH" method="POST" class="col-4 mx-2">
+                        <button class="btn btn-outline-danger col-12 py-2"><svg xmlns="http://www.w3.org/2000/svg"
+                                width="32" height="32" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                <path
+                                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                            </svg></button>
                     </form>
                     <% } %>
 
@@ -119,106 +126,113 @@
                         d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999z" />
                 </svg>
             </div>
-    
+
             <div>
-                <H2 class="fs-5 mb-3"><%- event.address %></H2>
+                <H2 class="fs-5 my-3"><%- event.address %></H2>
 
                 <% if (event.accessDetails) { %>
 
                     <H2 class="fs-6 fst-italic"><%- event.accessDetails %></H2>
-                 
-                <% } %>
-                
+
+                    <% } %>
+
             </div>
-    
+
         </div>
 
 
-     
-    <% } %>
-    
+
+        <% } %>
 
 
-    <div class="col-12 col-xxl-10 mx-auto">
-        <% for(let guest of event.attendedGuests) { %>
-            <div class="row justify-content-center mx-0 mb-3">
-                <div class="d-flex col-12 justify-content-start align-items-center mb-2">
-                    <img style="height: 64px;" class="img-thumbnail rounded-circle d-block mx-2"
-                        src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
-                        alt="pp">
 
-                    <div>
-                        <h3 class="fs-4 mb-0"><%- guest.user.displayName %></h3>
-                        <h4 class="fs-6 fst-italic">@<%- guest.user.userName %></h4>
+            <div class="col-12 col-xxl-10 mx-auto">
+                <% for(let guest of event.attendedGuests) { %>
+                    <div class="row justify-content-center mx-0 mb-3">
+                        <div class="d-flex col-12 justify-content-start align-items-center mb-2">
+                            <img style="height: 64px;" class="img-thumbnail rounded-circle d-block mx-2"
+                                src="https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
+                                alt="pp">
+
+                            <div>
+                                <h3 class="fs-4 mb-0"><%- guest.user.displayName %></h3>
+                                <h4 class="fs-6 fst-italic">@<%- guest.user.userName %></h4>
+                            </div>
+
+                            <% if (guest.user.userName===event.admin.userName) { %>
+
+                                <span class="ms-auto me-3" data-toggle="tooltip" title="Party host"><svg
+                                        xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                                        class="bi bi-house-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z" />
+                                        <path
+                                            d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z" />
+                                    </svg></span>
+
+                                <% } %>
+
+                        </div>
+
+                        <div class="col-12 col-lg-4 text-center mb-2">
+                            <ul class="list-group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                    class="bi bi-basket align-self-center my-2" viewBox="0 0 16 16">
+                                    <path
+                                        d="M5.757 1.071a.5.5 0 0 1 .172.686L3.383 6h9.234L10.07 1.757a.5.5 0 1 1 .858-.514L13.783 6H15a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1v4.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 13.5V9a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h1.217L5.07 1.243a.5.5 0 0 1 .686-.172zM2 9v4.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V9zM1 7v1h14V7zm3 3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 4 10m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 6 10m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 8 10m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5" />
+                                </svg>
+                                <% if (guest.foods.length> 0) { %>
+                                    <% for( let f of guest.foods) { %>
+                                        <li class="list-group-item"><%- f %></li>
+                                        <% } %>
+                                            <% } %>
+
+                            </ul>
+
+                        </div>
+
+                        <div class="col-12 col-lg-4 text-center mb-2">
+                            <ul class="list-group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                    class="bi bi-cup-straw align-self-center my-2" viewBox="0 0 16 16">
+                                    <path
+                                        d="M13.902.334a.5.5 0 0 1-.28.65l-2.254.902-.4 1.927c.376.095.715.215.972.367.228.135.56.396.56.82 0 .046-.004.09-.011.132l-.962 9.068a1.28 1.28 0 0 1-.524.93c-.488.34-1.494.87-3.01.87-1.516 0-2.522-.53-3.01-.87a1.28 1.28 0 0 1-.524-.93L3.51 5.132A.78.78 0 0 1 3.5 5c0-.424.332-.685.56-.82.262-.154.607-.276.99-.372C5.824 3.614 6.867 3.5 8 3.5c.712 0 1.389.045 1.985.127l.464-2.215a.5.5 0 0 1 .303-.356l2.5-1a.5.5 0 0 1 .65.278zM9.768 4.607A13.991 13.991 0 0 0 8 4.5c-1.076 0-2.033.11-2.707.278A3.284 3.284 0 0 0 4.645 5c.146.073.362.15.648.222C5.967 5.39 6.924 5.5 8 5.5c.571 0 1.109-.03 1.588-.085zm.292 1.756C9.445 6.45 8.742 6.5 8 6.5c-1.133 0-2.176-.114-2.95-.308a5.514 5.514 0 0 1-.435-.127l.838 8.03c.013.121.06.186.102.215.357.249 1.168.69 2.438.69 1.27 0 2.081-.441 2.438-.69.042-.029.09-.094.102-.215l.852-8.03a5.517 5.517 0 0 1-.435.127 8.88 8.88 0 0 1-.89.17zM4.467 4.884s.003.002.005.006zm7.066 0-.005.006c.002-.004.005-.006.005-.006M11.354 5a3.174 3.174 0 0 0-.604-.21l-.099.445.055-.013c.286-.072.502-.149.648-.222" />
+                                </svg>
+                                <% if (guest.drinks.length> 0) { %>
+
+                                    <% for( let d of guest.drinks) { %>
+                                        <li class="list-group-item"><%- d %></li>
+                                        <% } %>
+
+                                            <% } %>
+
+                            </ul>
+
+                        </div>
+
+                        <div class="col-12 col-lg-4 text-center mb-2">
+                            <ul class="list-group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                    class="bi bi-three-dots align-self-center my-2" viewBox="0 0 16 16">
+                                    <path
+                                        d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3" />
+                                </svg>
+                                <% if (guest.other.length> 0) { %>
+
+                                    <% for( let o of guest.other) { %>
+                                        <li class="list-group-item"><%- o %></li>
+                                        <% } %>
+
+                                            <% } %>
+
+                            </ul>
+
+                        </div>
+
+
                     </div>
-
-                    <% if (guest.user.userName === event.admin.userName) { %>
-                     
-                        <span class="ms-auto me-3" data-toggle="tooltip" title="Party host"><svg
-                            xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
-                            class="bi bi-house-fill" viewBox="0 0 16 16">
-                            <path
-                                d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z" />
-                            <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z" />
-                        </svg></span>
-
                     <% } %>
-                    
-                </div>
-
-                <% if (guest.foods.length > 0) { %>
-
-                    <div class="col-12 col-lg-4 text-center mb-2">
-                        <ul class="list-group">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-basket align-self-center my-2" viewBox="0 0 16 16">
-                                <path d="M5.757 1.071a.5.5 0 0 1 .172.686L3.383 6h9.234L10.07 1.757a.5.5 0 1 1 .858-.514L13.783 6H15a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1v4.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 13.5V9a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h1.217L5.07 1.243a.5.5 0 0 1 .686-.172zM2 9v4.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V9zM1 7v1h14V7zm3 3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 4 10m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 6 10m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 8 10m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5m2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5"/>
-                              </svg>
-                            <% for( let f of guest.foods) { %>
-                                <li class="list-group-item"><%- f %></li>
-                                <% } %>
-                        </ul>
-    
-                    </div>
-                 
-                <% } %>
-                
-                <% if (guest.drinks.length > 0) { %>
-
-                    <div class="col-12 col-lg-4 text-center mb-2">
-                        <ul class="list-group">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cup-straw align-self-center my-2" viewBox="0 0 16 16">
-                                <path d="M13.902.334a.5.5 0 0 1-.28.65l-2.254.902-.4 1.927c.376.095.715.215.972.367.228.135.56.396.56.82 0 .046-.004.09-.011.132l-.962 9.068a1.28 1.28 0 0 1-.524.93c-.488.34-1.494.87-3.01.87-1.516 0-2.522-.53-3.01-.87a1.28 1.28 0 0 1-.524-.93L3.51 5.132A.78.78 0 0 1 3.5 5c0-.424.332-.685.56-.82.262-.154.607-.276.99-.372C5.824 3.614 6.867 3.5 8 3.5c.712 0 1.389.045 1.985.127l.464-2.215a.5.5 0 0 1 .303-.356l2.5-1a.5.5 0 0 1 .65.278zM9.768 4.607A13.991 13.991 0 0 0 8 4.5c-1.076 0-2.033.11-2.707.278A3.284 3.284 0 0 0 4.645 5c.146.073.362.15.648.222C5.967 5.39 6.924 5.5 8 5.5c.571 0 1.109-.03 1.588-.085zm.292 1.756C9.445 6.45 8.742 6.5 8 6.5c-1.133 0-2.176-.114-2.95-.308a5.514 5.514 0 0 1-.435-.127l.838 8.03c.013.121.06.186.102.215.357.249 1.168.69 2.438.69 1.27 0 2.081-.441 2.438-.69.042-.029.09-.094.102-.215l.852-8.03a5.517 5.517 0 0 1-.435.127 8.88 8.88 0 0 1-.89.17zM4.467 4.884s.003.002.005.006zm7.066 0-.005.006c.002-.004.005-.006.005-.006M11.354 5a3.174 3.174 0 0 0-.604-.21l-.099.445.055-.013c.286-.072.502-.149.648-.222"/>
-                              </svg>
-                            <% for( let d of guest.drinks) { %>
-                                <li class="list-group-item"><%- d %></li>
-                                <% } %>
-                        </ul>
-    
-                    </div>
-                 
-                <% } %>
-
-                <% if (guest.other.length > 0) { %>
-
-                    <div class="col-12 col-lg-4 text-center mb-2">
-                        <ul class="list-group">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-three-dots align-self-center my-2" viewBox="0 0 16 16">
-                                <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/>
-                              </svg>
-                            <% for( let o of guest.other) { %>
-                                <li class="list-group-item"><%- o %></li>
-                                <% } %>
-                        </ul>
-    
-                    </div>
-                 
-                <% } %>
-              
-
-                
             </div>
-            <% } %>
-    </div>
 
     <script src="/js/inviteSticky.js">
     </script>

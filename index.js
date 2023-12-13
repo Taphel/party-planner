@@ -52,6 +52,67 @@ const checkSession = (req, res, next) => {
     }
 }
 
+const checkPendingGuest = async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        const event = await Event.findById(id)
+        .populate('pendingGuests');
+
+        for (let guest of event.pendingGuests) {
+            if (guest._id.toString() === req.session.userId) {
+                return next();
+            }
+        }
+        res.redirect('/events');
+
+    } catch (e) {
+        res.redirect('/events');
+    }
+    
+}
+
+const checkAttendedGuest = async (req, res, next) => {
+
+    const { id } = req.params;
+
+    try {
+        const event = await Event.findById(id)
+        .populate({
+            path: 'attendedGuests',
+            select: 'user'
+        });
+
+        for (let guest of event.attendedGuests) {
+            if (guest.user._id.toString() === req.session.userId) {
+                return next();
+            }
+        }
+        res.redirect('/events');
+
+    } catch (e) {
+        res.redirect('/events');
+    }
+}
+
+const checkAdmin = async (req, res, next) => {
+
+    const { id } = req.params;
+
+    try {
+        const event = await Event.findById(id)
+        .populate("admin");
+
+        if (event.admin._id.toString() === req.session.userId) {
+            next();
+        } else {
+            res.redirect('/events');
+        }       
+    } catch (e) {
+        res.redirect('/events');
+    }
+}
+
 const parseId = (req, res, next) => {
     console.log(req.body.admin);
     const id = req.body.admin;
@@ -215,7 +276,7 @@ app.post('/events', parseId, async (req, res) => {
     
 })
 
-app.get('/events/:id', checkSession, async (req, res) => {
+app.get('/events/:id', checkAttendedGuest, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
     const event = await Event.findById(id).populate(['admin', 'attendedGuests.user', 'pendingGuests']);
@@ -224,7 +285,7 @@ app.get('/events/:id', checkSession, async (req, res) => {
 
 // WORK IN PROGRESS
 
-app.patch('/events/:id/attend', checkSession, async (req, res) => {
+app.patch('/events/:id/attend', checkPendingGuest, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
 
@@ -272,7 +333,7 @@ app.patch('/events/:id/attend', checkSession, async (req, res) => {
         
 })
 
-app.patch('/events/:id/decline', checkSession, async (req, res) => {
+app.patch('/events/:id/decline', checkPendingGuest, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
 
@@ -302,13 +363,17 @@ app.patch('/events/:id/decline', checkSession, async (req, res) => {
         
 })
 
-app.patch('/events/:id/leave', checkSession, async (req, res) => {
+app.patch('/events/:id/leave', checkAttendedGuest, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
 
     try {
 
-        const event = await Event.findById(id).populate(['admin', 'attendedGuests', 'pendingGuests']);
+        const event = await Event.findById(id)
+        .populate({
+            path: 'attendedGuests',
+            select: 'user'
+        })
         const user = await User.findById(session.userId).populate((['attendedEvents', 'pendingEvents']));
 
         // delete the event from user's attended events
@@ -317,7 +382,7 @@ app.patch('/events/:id/leave', checkSession, async (req, res) => {
         // delete the user from the event attended guests
         for (let guest of event.attendedGuests) {
 
-            if (guest.user.userName === session.userName) {
+            if (guest.user._id.toString() === session.userId) {
                 event.attendedGuests.splice(event.attendedGuests.indexOf(guest), 1);
             }
         }
@@ -338,7 +403,7 @@ app.patch('/events/:id/leave', checkSession, async (req, res) => {
 })
 
 
-app.get('/events/:id/items', checkSession, async (req, res) => {
+app.get('/events/:id/items', checkAttendedGuest, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
 
@@ -372,7 +437,7 @@ app.get('/events/:id/items', checkSession, async (req, res) => {
     
 })
 
-app.get('/events/:id/address', checkSession, async (req, res) => {
+app.get('/events/:id/address', checkAdmin, async (req, res) => {
     const session = req.session;
     const { id } = req.params;
 
@@ -394,7 +459,7 @@ app.get('/events/:id/address', checkSession, async (req, res) => {
     
 })
 
-app.patch('/events/:id/invite', async(req, res) => {
+app.patch('/events/:id/invite', checkAdmin, async(req, res) => {
     const {id} = req.params;
     try {
         const event = await Event.findById(id);
@@ -416,7 +481,7 @@ app.patch('/events/:id/invite', async(req, res) => {
     
 })
 
-app.patch('/events/:id/items', async(req, res) => {
+app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
     const {id} = req.params;
 
     try {
@@ -470,7 +535,7 @@ app.patch('/events/:id/items', async(req, res) => {
     
 })
 
-app.patch('/events/:id/address', async(req, res) => {
+app.patch('/events/:id/address', checkAdmin, async(req, res) => {
     const {id} = req.params;
 
     try {
@@ -489,7 +554,7 @@ app.patch('/events/:id/address', async(req, res) => {
     
 })
 
-app.delete('/events/:id', async(req, res) => {
+app.delete('/events/:id', checkAdmin, async(req, res) => {
     const {id} = req.params;
 
     try {
@@ -549,19 +614,26 @@ app.get('/users', async (req, res) => {
       const eventId = req.query.e;
 
       const users = await User.find({ userName: new RegExp(query, 'i') });
-      const event = await Event.findById(eventId).populate(['admin', 'attendedGuests', 'pendingGuests']);
-
-      let allGuests = [];
-      allGuests = [...event.attendedGuests, ...event.pendingGuests];
-      allGuests.push(event.admin);
+      const event = await Event.findById(eventId)
+      .populate('pendingGuests')
+      .populate({
+        path: 'attendedGuests',
+        select: 'user'
+      });
 
       const filteredUsers = users.filter((user) => {
 
-        let sameUserNameCount = 0;
+        let sameUserCount = 0;
 
-        for (let guest of allGuests) {
+        for (let guest of attendedGuests) {
             
-            if (user.userName === guest.userName) sameUserNameCount++;
+            if (user._id === guest.user._id) sameUserCount++;
+
+        }
+
+        for (let guest of pendingGuests) {
+            
+            if (user._id === guest._id) sameUserCount++;
 
         }
 

@@ -10,8 +10,9 @@
         <% for( let event of attendedEvents) { %>
 
             <div class="card my-3 mx-3 col-12 col-md-5 col-xl-3 col-xxl-2 justify-content-center" style="height: 250px;">
-                <h2 class="ms-3"><%- event.name %></h2>
-                <p class="ms-3"><%- event.displayDate %> (<%- event.admin.displayName %>)</p>
+                <h2 class="mx-auto mb-3"><%- event.name %></h2>
+                <p class="mx-auto mb-1"><%- event.displayDate %></p>
+                <p class="mx-auto fw-bold">Admin : <%- event.admin.displayName %></p>
 
                 <a href="/events/<%- event._id %>" class="btn btn-secondary w-50 align-self-center">Details</a>
             </div>
@@ -29,8 +30,9 @@
         <% for( let event of pendingEvents) { %>
 
             <div class="card my-3 mx-3 col-12 col-md-5 col-xl-3 col-xxl-2 justify-content-center" style="height: 250px;">
-                <h2 class="ms-3"><%- event.name %></h2>
-                <p class="ms-3"><%- event.displayDate %> (<%- event.admin.displayName %>)</p>
+                <h2 class="mx-auto mb-3"><%- event.name %></h2>
+                <p class="mx-auto mb-1"><%- event.displayDate %></p>
+                <p class="mx-auto fw-bold">Admin : <%- event.admin.displayName %></p>
                 
                 <div class="d-flex flex-row">
                     <form class="d-flex justify-content-center col-6"method="POST" action="/events/<%- event._id %>/attend?_method=PATCH">
