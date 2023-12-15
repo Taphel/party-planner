@@ -4,6 +4,7 @@ const eventSchema = new mongoose.Schema({
 
     name: {
         type: String,
+        trim: true,
         required: true,
         maxLength: 30,
         minLength: 8
@@ -21,9 +22,21 @@ const eventSchema = new mongoose.Schema({
             ref: ('User')
         },
 
-        foods: [String],
-        drinks: [String],
-        other: [String]
+        foods: [{
+            type: String,
+            trim: true,
+            maxLength: 30
+        }],
+        drinks: [{
+            type: String,
+            trim: true,
+            maxLength: 30
+        }],
+        other: [{
+            type: String,
+            trim: true,
+            maxLength: 30
+        }]
     }],
 
     pendingGuests: [{
@@ -31,9 +44,17 @@ const eventSchema = new mongoose.Schema({
         ref: ('User')
     }],
 
-    address: String,
+    address: {
+        type: String,
+        trim: true,
+        maxLength: 100
+    },
 
-    accessDetails: String,
+    accessDetails: {
+        type: String,
+        trim: true,
+        maxLength: 100
+    },
 
     date: {
         type: Date,
@@ -53,7 +74,7 @@ eventSchema.virtual('displayDate').get(function() {
         minute: '2-digit',
       };
 
-    const localizedDateString = this.date.toLocaleString('fr-FR', options);
+    const localizedDateString = this.date.toLocaleString('en-En', options);
       
       // Capitalize the first letter of the day
     const capitalizedDateString =

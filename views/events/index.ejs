@@ -9,7 +9,7 @@
 
         <% for( let event of attendedEvents) { %>
 
-            <div class="card my-3 mx-3 col-12 col-md-5 col-xl-3 col-xxl-2 justify-content-center" style="height: 250px;">
+            <div class="card my-3 mx-3 col-8 col-md-5 col-lg-4 col-xxl-3 justify-content-center" style="height: 250px;">
                 <h2 class="mx-auto mb-3"><%- event.name %></h2>
                 <p class="mx-auto mb-1"><%- event.displayDate %></p>
                 <p class="mx-auto fw-bold">Admin : <%- event.admin.displayName %></p>
@@ -29,7 +29,7 @@
 
         <% for( let event of pendingEvents) { %>
 
-            <div class="card my-3 mx-3 col-12 col-md-5 col-xl-3 col-xxl-2 justify-content-center" style="height: 250px;">
+            <div class="card my-3 mx-3 col-10 col-md-5 col-lg-4 col-xxl-3 justify-content-center" style="height: 250px;">
                 <h2 class="mx-auto mb-3"><%- event.name %></h2>
                 <p class="mx-auto mb-1"><%- event.displayDate %></p>
                 <p class="mx-auto fw-bold">Admin : <%- event.admin.displayName %></p>

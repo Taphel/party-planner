@@ -5,13 +5,10 @@
     <h1 class="text-center mb-5">Register</h1>
 
     <% if (formData.errorMessages.length > 0) { %>
-        <div class="mb-3"> 
-            <h3>Error :</h3>
-            <ul>
-                <% for( let e of formData.errorMessages) { %>      
-                    <li><%- e %></li>
-                <% } %>      
-            </ul>   
+        <div class="mb-4"> 
+            <% for( let e of formData.errorMessages) { %>      
+                <h4 class="text-center text-danger mb-4"><%- e %></h4>
+            <% } %>      
         </div>  
     <% } %>        
     
@@ -33,21 +30,5 @@
     <div class="d-flex justify-content-center mx-auto mb-3 col-7">
         <button class="btn btn-outline-success col-12">Submit</button>
     </div>
-    
-
-    <!-- <label for="userName">User name :</label>
-    <span>@</span>
-    <input type="text" name="userName" minlength="4" maxlength="15" <% if (formData) { %> <%- `value="${formData.userName}"`%><% } %>>
-     
-    <br>
-
-    <label for="password">Password :</label>
-    <input type="password" name="password" minlength="8" maxlength="30">
-
-    <br>
-
-    <label for="confirmPassword">Confirm Password :</label>
-    <input type="password" name="confirmPassword" minlength="8" maxlength="30">
-    <button>Submit</button> -->
 
 </form>

@@ -12,17 +12,14 @@
                 <% if (session && session.userId && session.userName) { %>
                     <ul class="navbar-nav col-lg-4 justify-content-evenly">
                         <li class="nav-item col-6">
-                            <a class="nav-link mx-1 fs-5 col-12" aria-current="page" href="/events">My
-                                Events</a>
-                        <li class="nav-item col-6">
-                            <a class="nav-link mx-1 fs-5 col-12" aria-current="page" href="#">Profile</a>
+                            <a class="nav-link mx-1 fs-5 col-12" aria-current="page" href="/users/edit">Settings</a>
                         </li>
                     </ul>
 
                     <ul class="navbar-nav ms-lg-auto col-6 justify-content-end">
                         <li class="nav-item col-lg-6 d-flex align-items-center justify-content-lg-end">
-                            <a class="nav-link mx-1 active fst-italic" aria-current="page" href="#">Logged in as <%-
-                                    session.userName %></a>
+                            <span class="nav-link mx-1 active fst-italic" aria-current="page">Logged in as <em class="fw-bold"><%-
+                                    session.displayName%></em> - @<%- session.userName %>
                         </li>
                         <li class="nav-item col-8 col-lg-4 me-2">
                             <a class="nav-link mx-1" aria-current="page" href="/logout"><button
@@ -32,11 +29,11 @@
 
                     <% } else { %>
                         <ul class="navbar-nav ms-lg-auto col-6 justify-content-end">
-                            <li class="nav-item col-8 col-lg-4">
+                            <li class="nav-item col-10 col-sm-8 col-lg-4">
                                 <a class="nav-link mx-1" aria-current="page" href="/register"><button
                                         class="btn btn-outline-primary w-100">Register</button></a>
                             </li>
-                            <li class="nav-item col-8 col-lg-4 me-2">
+                            <li class="nav-item col-10 col-sm-8 col-lg-4 me-2">
                                 <a class="nav-link mx-1" aria-current="page" href="/login"><button
                                         class="btn btn-outline-success w-100">Log In</button></a>
                             </li>

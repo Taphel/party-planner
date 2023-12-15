@@ -1,21 +1,14 @@
 <% layout('layouts/boilerplate') %>
 
-
-<!-- <form action="/login" method="POST">
-
-    <label for="userName">User name :</label>
-    <input type="text" name="userName" minlength="4" maxlength="15">
-
-    <label for="password">Password :</label>
-    <input type="password" name="password" minlength="8" maxlength="30">
-
-    <button>Submit</button>
-
-</form> -->
-
 <form action="/login" method="POST" class="col-8 col-lg-3 mx-auto mt-5">
 
     <h1 class="text-center mb-5">Log In</h1>
+
+    <% if (errorMessage != "") { %>
+        <div class="mb-4"> 
+            <h4 class="text-center text-danger"><%- errorMessage %></h3> 
+        </div>  
+    <% } %> 
 
     <div class="d-flex flex-column align-items-center mb-3">
         <label class="form-label" for="userName">User name :</label>

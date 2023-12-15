@@ -8,10 +8,23 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
+const mongoSanitize = require('express-mongo-sanitize');
+const sanitizeHtml = require("sanitize-html");
 
 const generateSessionSecret = () => {
   return crypto.randomBytes(32).toString('hex');
 };
+
+// Html cleanup function
+const clean = function(dirty) {
+
+    return sanitizeHtml(dirty, {
+        allowedTags: [],
+        allowedAttributes: {}
+      });
+
+}
+    
 
 // Require models
 const Event = require('./models/event');
@@ -39,13 +52,72 @@ const passwordHash = async (password, saltRounds) => {
     return null;
   };
 
+// Delete Event function
+const deleteEvent = async function(id) {
+
+    try {
+        const event = await Event.findById(id)
+        .populate({
+            path: 'attendedGuests.user',
+            select: 'attendedEvents userName'
+        })
+        .populate({
+            path: 'pendingGuests',
+            select: 'pendingEvents'
+        });
+        console.log("DELETING EVENT : ", event);
+    
+        // DELETE EVENT FROM USERS EVENT LIST
+        for (let attendedGuest of event.attendedGuests) {
+            console.log("ATTENDED GUEST :", attendedGuest.user);
+            for (let attendedEvent of attendedGuest.user.attendedEvents) {
+                console.log("COMPARING IDS :", id, attendedEvent._id.toString());
+                if (id === attendedEvent._id.toString()) {
+                    // attendedGuest.user.attendedEvents.splice(attendedGuest.user.attendedEvents.indexOf(attendedEvent), 1);
+                    attendedGuest.user.attendedEvents.pull(id);
+                    console.log(`${attendedGuest.user.userName} ATTENDED EVENTS :`, attendedGuest.user.attendedEvents)
+                    console.log(`Event ${id} removed from ${attendedGuest.user.userName} attended events.`)
+                }
+            }
+    
+            await attendedGuest.user.save();
+        }
+    
+        for (let pendingGuest of event.pendingGuests) {
+            for (let pendingEvent of pendingGuest.pendingEvents) {
+                if (id === pendingEvent._id.toString()) {
+                    // pendingGuest.user.pendingEvents.splice(pendingGuest.user.pendingEvents.indexOf(pendingEvent), 1);
+                    pendingGuest.pendingEvents.pull(id);
+                    console.log(`${pendingGuest.user.userName} PENDING EVENTS :`, pendingGuest.user.pendingEvents)
+                    console.log(`Event ${id} removed from ${pendingGuest.user.userName} pending events.`)
+                }
+    
+            }     
+    
+            await pendingGuest.save();
+        }
+    
+        await event.deleteOne();
+          
+        console.log('EVENT DELETED :');
+        console.log(event);
+
+        } catch (e) {
+            console.log("ERROR DELETING EVENT :", e);
+        }    
+}
+
 // Middleware
 app.use(
     session({
-      secret: generateSessionSecret(),
-      resave: false,
-      saveUninitialized: false,
-      cookie : {
+        name: "PartyPlanner",
+        secret: generateSessionSecret(),
+        resave: false,
+        saveUninitialized: false,
+        cookie : {
+        httpOnly: true,
+        // secure: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
       }
     })
@@ -58,12 +130,21 @@ app.engine('ejs', ejsMate);
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 app.use(morgan('tiny'));
+app.use(mongoSanitize());
 
 const checkSession = (req, res, next) => {
     if(req.session.userId) {
         next();
     } else {
         res.redirect('/login');
+    }
+}
+
+const checkNoSession = (req, res, next) => {
+    if(!req.session.userId) {
+        next();
+    } else {
+        res.redirect('/events');
     }
 }
 
@@ -138,32 +219,42 @@ const parseId = (req, res, next) => {
 
 // Access
 
-app.get('/home', async (req, res) => {
+app.get('/home', checkNoSession, async (req, res) => {
     const session = req.session;
     res.render('home', {session});
 })
 
-app.get('/login', async (req, res) => {
+app.get('/login', checkNoSession, async (req, res) => {
     const session = req.session;
-    res.render('login', {session});
+    const errorMessage = "";
+    res.render('login', {session, errorMessage});
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', checkNoSession, async (req, res) => {
     const {userName, password} = req.body;
     const user = await User.findOne({userName: userName});
 
-    const matchFound = await bcrypt.compare(password, user.password);
+    if (user) {
+        const matchFound = await bcrypt.compare(password, user.password);
 
-    if (user && matchFound) {
-        req.session.userId = user._id;
-        req.session.userName = user.userName;
-        res.redirect('/events');
+        if (matchFound) {
+            req.session.userId = user._id;
+            req.session.userName = user.userName;
+            req.session.displayName = user.displayName;
+            res.redirect('/events');
+        } else {
+            const errorMessage = "Incorrect username or password."
+            res.render('login', {session, errorMessage});
+        }
     } else {
-        res.redirect('/login');
+        const errorMessage = "Incorrect username or password."
+        res.render('login', {session, errorMessage});
     }
+
+    
 })
 
-app.get('/register', async (req, res) => {
+app.get('/register', checkNoSession, async (req, res) => {
     const session = req.session;
     const formData = {
         userName: "",
@@ -172,27 +263,51 @@ app.get('/register', async (req, res) => {
     res.render('register', {formData, session});
 })
 
-app.post('/register', async (req, res) => {
-    const {userName, password, confirmPassword} = req.body;
+app.post('/register', checkNoSession, async (req, res) => {
+    let {userName, password, confirmPassword} = req.body;
+
+    // Cleaning inputs
+    cleanUserName = clean(userName);
+    cleanPassword = clean(password);
+
+    // Username and password Regex
+    const whitespaceRegex = /\s/;
+    const passwordRegex = /^(?=\S*[\d])(?=\S*[!@#$%^&*()_+{}\[\]:;,.?~\\/-])\S*$/;
+
     const errorMessages = [];
 
-    // Hash the request password
-    const hashedPassword = await passwordHash(password, 10);
-    const takenUserName = await User.findOne({userName: userName});
+    // Check if username is taken
+    const takenUserName = await User.findOne({userName: cleanUserName});
     
+    if (whitespaceRegex.test(userName)) {
+        errorMessages.push("Username must not contain whitespaces.")
+    }
+
+    if(!passwordRegex.test(password)) {
+        errorMessages.push("Password must contain at least one digit and one special character (excluding < or >)");
+    }
 
     if (takenUserName) {
         errorMessages.push("This user name is already taken.")
     }
+
     if (password !== confirmPassword) {
         errorMessages.push("Passwords do not match.")
     }
+
     if(password.length > 30 || password.length < 8) {
         errorMessages.push("Password must be between 8 and 30 characters.")
     }
+
     if(userName.length > 15|| userName.length < 4) {
         errorMessages.push("Username must be between 4 and 15 characters.")
     }
+
+    if(cleanUserName !== userName || cleanPassword !== password) {
+        errorMessages.push("Username or password must not contain HTML tags.")
+    }
+
+
     
     console.log(errorMessages);
 
@@ -205,6 +320,10 @@ app.post('/register', async (req, res) => {
         const session = req.session;
         res.render('register', {formData, session});
     } else {
+
+        // Hash the request password
+        const hashedPassword = await passwordHash(cleanPassword, 10);
+
         const newUser = new User({
             displayName: userName.toLowerCase(),
             userName: userName,
@@ -218,6 +337,7 @@ app.post('/register', async (req, res) => {
 
             req.session.userId = newUser._id;
             req.session.userName = newUser.userName;
+            req.session.displayName = newUser.displayName;
             res.redirect('/events');
         } catch (e) {
             console.log(e);
@@ -231,6 +351,7 @@ app.get('/logout', async (req, res) => {
 
     delete req.session.userId;
     delete req.session.userName;
+    delete req.session.displayName
     res.redirect('/home');
 
 })
@@ -267,6 +388,10 @@ app.get('/events/new', checkSession, (req, res) => {
 
 app.post('/events', parseId, async (req, res) => {
     const newEvent = new Event(req.body);
+
+    // Sanitize name input
+    newEvent.name = clean(newEvent.name);
+
     console.log(req.body.time);
     const hours = parseInt(req.body.time.substring(0, 2));
     const minutes = parseInt(req.body.time.substring(3));
@@ -326,8 +451,13 @@ app.patch('/events/:id/attend', checkPendingGuest, async (req, res) => {
         console.log("LOGGED IN USER :", loggedUser);
 
         // delete the user from event's pending guests and add it to attended guests
-        event.pendingGuests.splice(event.pendingGuests.indexOf(loggedUser), 1);
-
+        for(let pendingGuest of event.pendingGuests) {
+            if(pendingGuest._id.toString() === loggedUser._id.toString()) {
+                event.pendingGuests.splice(event.pendingGuests.indexOf(pendingGuest), 1);
+            }
+        }
+        
+        // Create new attending guest and push it into the array
         const attendingGuest = {
             user: loggedUser,
             foods: [],
@@ -495,11 +625,13 @@ app.patch('/events/:id/invite', checkAdmin, async(req, res) => {
         const event = await Event.findById(id);
         const guest = await User.findOne({userName: req.body.pendingGuest});
 
+        console.log("GUEST :", guest);
+
         event.pendingGuests.push(guest);
-        await Event.findByIdAndUpdate(id, event, {new: true, runValidators: true})
+        await event.save();
 
         guest.pendingEvents.push(event);
-        await User.findByIdAndUpdate(guest._id, guest, {new: true, runValidators: true})
+        await guest.save();
         
         console.log('EVENT UPDATED :');
         console.log(event);
@@ -523,6 +655,8 @@ app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
 
             if (!req.body.foods[i]) {
                 req.body.foods.splice(i, 1);
+            } else {
+                req.body.foods[i] = clean(req.body.foods[i]);
             }
         }
 
@@ -530,6 +664,8 @@ app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
 
             if (!req.body.drinks[i]) {
                 req.body.drinks.splice(i, 1);
+            } else {
+                req.body.drinks[i] = clean(req.body.drinks[i]);
             }
         }
 
@@ -537,6 +673,8 @@ app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
 
             if (!req.body.other[i]) {
                 req.body.other.splice(i, 1);
+            } else {
+                req.body.other[i] = clean(req.body.other[i]);
             }
         }
 
@@ -570,8 +708,8 @@ app.patch('/events/:id/address', checkAdmin, async(req, res) => {
 
     try {
         const event = await Event.findById(id)
-        event.address = req.body.address;
-        event.accessDetails = req.body.accessDetails;
+        event.address = clean(req.body.address);
+        event.accessDetails = clean(req.body.accessDetails);
 
         await event.save();
         console.log("EVENT UPDATED :", event);
@@ -588,53 +726,12 @@ app.delete('/events/:id', checkAdmin, async(req, res) => {
     const {id} = req.params;
 
     try {
-
-    const event = await Event.findById(id)
-    .populate({
-        path: 'attendedGuests.user',
-        select: 'attendedEvents'
-    })
-    .populate({
-        path: 'pendingGuests',
-        select: 'pendingEvents'
-    });
-    console.log("DELETING EVENT : ", event);
-
-    // DELETE EVENT FROM USERS EVENT LIST
-    for (let attendedGuest of event.attendedGuests) {
-        for (let attendedEvent of attendedGuest.user.attendedEvents) {
-            if (id === attendedEvent._id) {
-                attendedGuest.user.attendedEvents.splice(attendedGuest.user.attendedEvents.indexOf(attendedEvent), 1);
-                console.log(`Event ${id} removed from ${attendedGuest.user.userName} attended events.`)
-            }
-        }
-    }
-
-    for (let pendingGuest of event.pendingGuests) {
-        for (let pendingEvent of pendingGuest.pendingEvents) {
-            if (id === pendingEvent._id) {
-                pendingGuest.user.pendingEvents.splice(pendingGuest.user.pendingEvents.indexOf(pendingEvent), 1);
-                console.log(`Event ${id} removed from ${pendingGuest.user.userName} pending events.`)
-            }
-        }
-    }
-
-    event.deleteOne();
-    
-
-    console.log('EVENT DELETED :');
-    console.log(event);
-    res.redirect(`/events`);
-
-
+        await deleteEvent(id);
+        res.redirect("/events");
     } catch (e) {
-
-        console.log("ERROR DELETING EVENT :", e);
-        res.redirect(`/events`);
-
+        console.log(e)
+        res.redirect("/events");
     }
-
-
     
 })
 
@@ -644,6 +741,7 @@ app.get('/users', async (req, res) => {
       const eventId = req.query.e;
 
       const users = await User.find({ userName: new RegExp(query, 'i') });
+      console.log("USERS FOUND :", users);
       const event = await Event.findById(eventId)
       .populate('pendingGuests')
       .populate({
@@ -651,23 +749,34 @@ app.get('/users', async (req, res) => {
         select: 'user'
       });
 
+      console.log("USERS FOUND", users)
+
+      console.log("ATTENDED GUESTS", event.attendedGuests);
+      console.log("PENDING GUESTS :", event.pendingGuests);
+
       const filteredUsers = users.filter((user) => {
 
         let sameUserCount = 0;
 
-        for (let guest of attendedGuests) {
-            
-            if (user._id === guest.user._id) sameUserCount++;
+        console.log("CHECKING IF THIS USER IS AN ATTENDED GUEST :", user);
 
-        }
+            for (let attendedGuest of event.attendedGuests) {
+                
+                console.log("COMPARING IDs :", user._id, attendedGuest.user._id);
+                if (user._id.toString() === attendedGuest.user._id.toString()) sameUserCount++;
+    
+            }
 
-        for (let guest of pendingGuests) {
-            
-            if (user._id === guest._id) sameUserCount++;
+            console.log("CHECKING IF THIS USER IS A PENDING GUEST :", user);
+    
+            for (let pendingGuest of event.pendingGuests) {
+                
+                console.log("COMPARING IDs :", user._id, pendingGuest._id);
+                if (user._id.toString() === pendingGuest._id.toString()) sameUserCount++;
+    
+            }
 
-        }
-
-        return sameUserNameCount === 0;
+        return sameUserCount === 0;
 
       })
 
@@ -676,13 +785,183 @@ app.get('/users', async (req, res) => {
       console.log("FILTERED USERS :", filteredUsers);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.redirect("/home");
     }
+
   });
 
-  app.get('/', async (req, res) => {
+
+app.get('/users/edit', checkSession, async (req, res) => {
+
+    const session = req.session;
+    const formData = {
+        userName: "",
+        errorMessages: []
+    }
+    res.render('settings', {formData, session});
+
+})
+
+
+app.patch('/users', checkSession, async (req, res) => {
+    try {
+        const { displayName, password, confirmPassword, user } = req.body;
+        const updatedUser = await User.findById(user);
+
+        // Cleaning inputs
+        cleanDisplayName = clean(displayName);
+        cleanPassword = clean(password);
+
+        console.log(`DISPLAY NAME : ${displayName} | CLEAN DISPLAY NAME : ${cleanDisplayName}`);
+        console.log(`PASSWORD : ${password} | CLEAN PASSWORD : ${cleanPassword}`);
+
+        // password Regex
+        const passwordRegex = /^(?=\S*[\d])(?=\S*[!@#$%^&*()_+{}\[\]:;,.?~\\/-])\S*$/;
+
+        const errorMessages = [];
+
+        if (displayName) {
+
+            if (displayName.length > 15 || displayName.length < 4) {
+                errorMessages.push("Username must be between 4 and 15 characters.")
+            }
+
+        }
+
+        if (password) {
+
+            if (!passwordRegex.test(password)) {
+                errorMessages.push("Password must contain at least one digit and one special character (excluding < or >)");
+            }
+
+            if (password !== confirmPassword) {
+                errorMessages.push("Passwords do not match.")
+            }
+
+            if (password.length > 30 || password.length < 8) {
+                errorMessages.push("Password must be between 8 and 30 characters.")
+            }
+        }
+
+        if (cleanDisplayName !== displayName || cleanPassword !== password) {
+            errorMessages.push("Username or password must not contain HTML tags.")
+        }
+
+        console.log(errorMessages);
+
+        const formData = {
+            displayName: displayName,
+            errorMessages: errorMessages
+        }
+
+        if (errorMessages.length > 0) {
+            const session = req.session;
+            res.render('settings', { formData, session });
+        } else {
+
+            if (cleanDisplayName) {
+
+                updatedUser.displayName = cleanDisplayName;
+
+            }
+
+            if (cleanPassword) {
+
+                const hashedPassword = await passwordHash(cleanPassword, 10);
+                updatedUser.password = hashedPassword;
+
+            }
+
+            await updatedUser.save();
+            res.redirect("/events");
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.delete('/users', checkSession, async (req, res) => {
+
+    const id = req.body.user;
+
+    try {
+        let user = await User.findById(id)
+            .populate({
+                path: 'attendedEvents',
+                select: 'attendedGuests.user admin'
+            })
+            .populate({
+                path: 'pendingEvents',
+                select: 'pendingGuests'
+            });
+
+
+        // Remove any event created by the user
+        for (let event of user.attendedEvents) {
+            if (event.admin._id.toString() === user._id.toString()) {
+                await deleteEvent(event._id.toString());
+            }
+        }
+
+        // update user post deletion of admin events
+        user = await User.findById(id)
+            .populate({
+                path: 'attendedEvents',
+                select: 'attendedGuests.user admin'
+            })
+            .populate({
+                path: 'pendingEvents',
+                select: 'pendingGuests'
+            });
+
+
+        // Remove deleted user from its events
+        for (let event of user.attendedEvents) {
+            for (let guest of event.attendedGuests) {
+
+                console.log("AGUEST ID :", guest.user._id.toString());
+                console.log("USER ID :", user._id.toString());
+
+                if (guest.user._id.toString() === user._id.toString()) {
+                    event.attendedGuests.pull(guest.user._id.toString());
+                }
+            }
+            await event.save();
+        }
+
+        for (let event of user.pendingEvents) {
+            for (let guest of event.pendingGuests) {
+
+                console.log("PGUEST ID :", guest._id.toString());
+                console.log("USER ID :", user._id.toString());
+
+                if (guest._id.toString() === user._id.toString()) {
+                    event.pendingGuests.pull(guest._id.toString());
+                }
+            }
+            await event.save();
+        }
+
+        // Delete user and clear session
+        await user.deleteOne();
+        console.log("USER DELETED :", user);
+        delete req.session.userId;
+        delete req.session.userName;
+        delete req.session.displayName;
+
+        res.redirect('/home');
+
+    } catch (e) {
+        console.log(e);
+        res.redirect("/events");
+    }
+
+})
+
+app.get('/', async (req, res) => {
     res.redirect('/home');
-  })
+})
 
 
 app.use((req, res) => {
@@ -693,19 +972,4 @@ app.use((req, res) => {
 app.listen(3000, () => {
     console.log('App listening on port 3000.')
 });
-
-async function getAdminId() {
-    try {
-        const user = await User.findOne({userName: 'Didier'}, '_id');
-
-        if(user) {
-            return user._id;
-        } else {
-            console.log('User not found.')
-        }
-        
-    } catch (error) {
-        console.error('Error retrieving user:', error);
-    }
-}
 

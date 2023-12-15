@@ -1,0 +1,47 @@
+<% layout('layouts/boilerplate') %>
+
+<form action="/users?_method=PATCH" method="POST" class="col-8 col-lg-3 mx-auto mt-5">
+
+    <h1 class="text-center mb-5">Edit Account</h1>
+
+    <% if (formData.errorMessages.length > 0) { %>
+        <div class="mb-4"> 
+            <% for( let e of formData.errorMessages) { %>      
+                <h4 class="text-center text-danger mb-4"><%- e %></h4>
+            <% } %>      
+        </div>  
+    <% } %> 
+
+    <div class="d-flex flex-column align-items-center mb-3">
+        <label class="form-label" for="displayName">New display name :</label>
+        <input class="form-control" type="text" name="displayName">
+    </div>
+
+    <div class="d-flex flex-column align-items-center mb-4">
+        <label class="form-label" for="password">New password :</label>
+        <input class="form-control" type="password" name="password">
+    </div>
+
+    <div class="d-flex flex-column align-items-center mb-4">
+        <label class="form-label" for="confirmPassword">Confirm password :</label>
+        <input class="form-control" type="password" name="confirmPassword">
+    </div>
+
+    <input type="hidden" name="user" value="<%- session.userId %>">
+
+    <div class="d-flex justify-content-center mx-auto mb-3 col-7">
+        <button class="btn btn-outline-success col-12">Submit</button>
+    </div>
+
+</form>
+
+<form action="/users?_method=DELETE" method="POST" class="col-8 col-lg-3 mx-auto mt-5">
+
+    <input type="hidden" name="user" value="<%- session.userId %>">
+    <div class="d-flex justify-content-center mx-auto mb-3 col-7">
+        <button class="btn btn-outline-danger col-12">Delete Account</button>
+    </div>
+
+
+</form>
+
