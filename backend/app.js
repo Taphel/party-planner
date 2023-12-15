@@ -692,12 +692,10 @@ app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
             }
         }
 
-        
-
         // Edit event guest item list
         for (let guest of event.attendedGuests) {
 
-            if (guest.user._id.toString() === user.userName.toString()) {
+            if (guest.user._id.toString() === user._id.toString()) {
 
                 guest.foods = req.body.foods;
                 guest.drinks = req.body.drinks;
