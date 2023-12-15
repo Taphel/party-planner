@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const mongoSanitize = require('express-mongo-sanitize');
 const sanitizeHtml = require("sanitize-html");
+const dbUrl = process.env.DbUrl;
 
 // Require models
 const Event = require('./models/event');
