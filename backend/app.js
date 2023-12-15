@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const express = require('express');
 const session= require('express-session');
 const MongoStore = require('connect-mongo');
@@ -13,7 +11,6 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const mongoSanitize = require('express-mongo-sanitize');
 const sanitizeHtml = require("sanitize-html");
-const dbUrl = process.env.DB_URL
 
 // Require models
 const Event = require('./models/event');
