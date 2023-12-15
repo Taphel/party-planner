@@ -667,6 +667,7 @@ app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
             if (!req.body.foods[i]) {
                 req.body.foods.splice(i, 1);
             } else {
+                console.log("BROWSING FOOD :", req.body.foods[i]);
                 req.body.foods[i] = clean(req.body.foods[i]);
             }
         }
