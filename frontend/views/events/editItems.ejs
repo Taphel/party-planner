@@ -12,16 +12,16 @@
     
                 <% if (foods.length > 0) { %>
     
-                    <% for( let food of foods) { %>
+                    <% for( let i = 0; i < foods.length; i++) { %>
     
-                        <input class="foodField form-control" type="text" name="foods[<%-foods.indexOf(food)%>]" minlength="3"
-                            maxlength="30" value="<%-food%>">
+                        <input class="foodField form-control" type="text" name="foods[<%- i %>]"
+                            maxlength="30" value="<%-foods[i]%>">
         
                     <% } %>
                  
                 <% } else { %> 
     
-                    <input class="foodField form-control" type="text" name="foods[0]" minlength="3"
+                    <input class="foodField form-control" type="text" name="foods[0]"
                             maxlength="30">
     
                 <% } %>
@@ -52,16 +52,16 @@
     
                 <% if (drinks.length > 0) { %>
     
-                    <% for( let drink of drinks) { %>
+                    <% for( let i = 0; i < drinks.length; i++) { %>
     
-                        <input class="drinkField form-control" type="text" name="drinks[<%-drinks.indexOf(drink)%>]" minlength="3"
-                            maxlength="30" value="<%-drink%>">
+                        <input class="drinkField form-control" type="text" name="drinks[<%-i%>]"
+                            maxlength="30" value="<%-drinks[i]%>">
         
                     <% } %>
                  
                 <% } else { %> 
     
-                    <input class="drinkField form-control" type="text" name="drinks[0]" minlength="3"
+                    <input class="drinkField form-control" type="text" name="drinks[0]"
                             maxlength="30">
     
                 <% } %>
@@ -91,16 +91,16 @@
     
                 <% if (other.length > 0) { %>
     
-                    <% for( let item of other) { %>
+                    <% for( let i = 0; i < other.length; i++) { %>
     
-                        <input class="otherField form-control" type="text" name="other[<%-other.indexOf(item)%>]" minlength="3"
-                            maxlength="30" value="<%-item%>">
+                        <input class="otherField form-control" type="text" name="other[<%-i%>]"
+                            maxlength="30" value="<%-other[i]%>">
         
                     <% } %>
                  
                 <% } else { %> 
     
-                    <input class="otherField form-control" type="text" name="other[0]" minlength="3"
+                    <input class="otherField form-control" type="text" name="other[0]"
                             maxlength="30">
     
                 <% } %>
