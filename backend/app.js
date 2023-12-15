@@ -406,8 +406,8 @@ app.post('/events', parseId, async (req, res) => {
     console.log(req.body.time);
     const hours = parseInt(req.body.time.substring(0, 2));
     const minutes = parseInt(req.body.time.substring(3));
-    newEvent.date.setHours(hours);
-    newEvent.date.setMinutes(minutes);
+    newEvent.date.setUTCHours(hours);
+    newEvent.date.setUTCMinutes(minutes);
 
     try {
         // Add created event to admin's attended events
@@ -670,7 +670,6 @@ app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
             if (!req.body.foods[i]) {
                 req.body.foods.splice(i, 1);
             } else {
-                console.log("BROWSING FOOD :", req.body.foods[i]);
                 req.body.foods[i] = clean(req.body.foods[i]);
             }
         }
@@ -698,7 +697,7 @@ app.patch('/events/:id/items', checkAttendedGuest, async(req, res) => {
         // Edit event guest item list
         for (let guest of event.attendedGuests) {
 
-            if (guest.user.userName === user.userName) {
+            if (guest.user._id.toString() === user.userName.toString()) {
 
                 guest.foods = req.body.foods;
                 guest.drinks = req.body.drinks;
@@ -831,7 +830,7 @@ app.patch('/users', checkSession, async (req, res) => {
         console.log(`PASSWORD : ${password} | CLEAN PASSWORD : ${cleanPassword}`);
 
         // password Regex
-        const passwordRegex = /^(?=\S*[\d])(?=\S*[!@#$%^&*()_+{}\[\]:;,.?~\\/-])\S*$/;
+        const passwordRegex = /^(?=\S*[\d])(?=\S*[!@#%^&*()_+{}\[\]:;,.?~\\/-])\S*$/;
 
         const errorMessages = [];
 

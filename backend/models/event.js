@@ -65,7 +65,7 @@ const eventSchema = new mongoose.Schema({
 eventSchema.virtual('displayDate').get(function() {
 
     const options = {
-        timeZone: 'Europe/Paris', // Set your local timezone (GMT+2 for Paris)
+        timeZone: 'UTC',
         weekday: 'long', // Include the day of the week
         year: 'numeric',
         month: '2-digit',
