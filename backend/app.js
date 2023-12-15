@@ -406,8 +406,8 @@ app.post('/events', parseId, async (req, res) => {
     console.log(req.body.time);
     const hours = parseInt(req.body.time.substring(0, 2));
     const minutes = parseInt(req.body.time.substring(3));
-    newEvent.date.setUTCHours(hours);
-    newEvent.date.setUTCMinutes(minutes);
+    newEvent.date.setHours(hours);
+    newEvent.date.setMinutes(minutes);
 
     try {
         // Add created event to admin's attended events
