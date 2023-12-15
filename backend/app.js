@@ -597,8 +597,11 @@ app.get('/events/:id/items', checkAttendedGuest, async (req, res) => {
 
 
         const foods = editGuest.foods;
+        console.log("FOODS :", foods);
         const drinks = editGuest.drinks;
+        console.log("DRINKS :", drinks);
         const other = editGuest.other;
+        console.log("OTHER :", other);
 
         res.render('events/editItems', {event, session, foods, drinks, other});
     } else {
