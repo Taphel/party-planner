@@ -4,15 +4,15 @@
 
     <h1 class="text-center mb-5">Log In</h1>
 
-    <% if (errorMessage != "") { %>
+    <% if (formData.errorMessage != "") { %>
         <div class="mb-4"> 
-            <h4 class="text-center text-danger"><%- errorMessage %></h3> 
+            <h4 class="text-center text-danger"><%- formData.errorMessage %></h3> 
         </div>  
     <% } %> 
 
     <div class="d-flex flex-column align-items-center mb-3">
         <label class="form-label" for="userName">User name :</label>
-        <input class="form-control" type="text" name="userName" minlength="4" maxlength="15">
+        <input class="form-control" type="text" name="userName" minlength="4" maxlength="15" value="<%- formData.userName %>">
     </div>
 
     <div class="d-flex flex-column align-items-center mb-4">

@@ -254,12 +254,18 @@ app.post('/login', checkNoSession, async (req, res) => {
             req.session.displayName = user.displayName;
             res.redirect('/events');
         } else {
-            const errorMessage = "Incorrect username or password."
-            res.render('login', {session, errorMessage});
+            const formData = {
+                userName: userName,
+                errorMessage: "Incorrect username or password."
+            }
+            res.render('login', {session, formData});
         }
     } else {
-        const errorMessage = "Incorrect username or password."
-        res.render('login', {session, errorMessage});
+        const formData = {
+            userName: userName,
+            errorMessage: "Incorrect username or password."
+        }
+        res.render('login', {session, formData});
     }
 
     
