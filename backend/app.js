@@ -828,8 +828,6 @@ app.patch('/users', checkSession, async (req, res) => {
         console.log(`PASSWORD : ${password} | CLEAN PASSWORD : ${cleanPassword}`);
 
         // password Regex
-        const passwordRegex = /^(?=\S*[\d])(?=\S*[!@#%^&*()_+{}\[\]:;,.?~\\/-])\S*$/;
-
         const errorMessages = [];
 
         if (displayName) {
@@ -841,11 +839,6 @@ app.patch('/users', checkSession, async (req, res) => {
         }
 
         if (password) {
-
-            if (!passwordRegex.test(password)) {
-                errorMessages.push("Password must contain at least one digit and one special character (excluding < or >)");
-            }
-
             if (password !== confirmPassword) {
                 errorMessages.push("Passwords do not match.")
             }
@@ -885,6 +878,10 @@ app.patch('/users', checkSession, async (req, res) => {
             }
 
             await updatedUser.save();
+
+            // update session
+            req.session.displayName = updatedUser.displayName;
+
             res.redirect("/events");
         }
     } catch (err) {
