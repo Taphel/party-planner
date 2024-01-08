@@ -5,6 +5,14 @@ const inviteSticky = document.querySelector("#inviteSticky");
 const userSearchInput = document.querySelector("#userSearchInput");
 const userSearchData = document.querySelector("#userSearchData");
 
+function debounce(func, timeout = 300){
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+  }
+
 function getEventId() {
     // Get the full URL from the browser's address bar
     const fullURL = window.location.href;
@@ -51,7 +59,7 @@ for(let b of inviteButtons) {
 
 }
 
-userSearchInput.addEventListener("input", async () => {
+async function fetchUsers() {
     try {
 
         // Clear previous data
@@ -137,6 +145,8 @@ userSearchInput.addEventListener("input", async () => {
         console.error('Error fetching data:', error);
 
     }
-})
+}
+
+userSearchInput.addEventListener("input", debounce(() => fetchUsers()));
 
 overlay.addEventListener("click", hideSticky);
