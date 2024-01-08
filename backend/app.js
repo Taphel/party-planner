@@ -237,8 +237,11 @@ app.get('/home', checkNoSession, async (req, res) => {
 
 app.get('/login', checkNoSession, async (req, res) => {
     const session = req.session;
-    const errorMessage = "";
-    res.render('login', {session, errorMessage});
+    const formData = {
+        userName: "",
+        errorMessage: ""
+    }
+    res.render('login', {session, formData});
 })
 
 app.post('/login', checkNoSession, async (req, res) => {
